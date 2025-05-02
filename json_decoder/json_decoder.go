@@ -72,9 +72,9 @@ type StoryChoice struct {
 	}
 }
 
-type storyMap map[string]StoryChoice
+type StoryMap map[string]StoryChoice
 
-func GetOptionsFromJSON() (mappedOptions storyMap, err error) {
+func GetOptionsFromJSON() (mappedOptions StoryMap, err error) {
 
 	var storyChoices StoryChoices
 	file, err := os.ReadFile("../gopher.json")

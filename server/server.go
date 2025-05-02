@@ -1,14 +1,19 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func InitServer() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", defaultHandler)
 	return mux
 }
 
-func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+func DefaultHandler(html string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("content-type", "text/html")
+		w.Write([]byte(html))
+		return
+	}
 }

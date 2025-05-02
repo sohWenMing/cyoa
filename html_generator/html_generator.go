@@ -10,33 +10,63 @@ import (
 
 var headerTemplate string = `{{define "header"}} `
 var titleTemplate *template.Template = template.New("title")
+var storylineTemplate *template.Template = template.New("storyline")
 
 type TitleStruct struct {
 	Title string
 }
 
+type StoryLineStruct struct {
+	StoryLine string
+}
+
 func GenerateHTML(storyChoice jsonDecoder.StoryChoice) (html string, err error) {
 
+	s, err := storylineTemplate.Parse("{{.StoryLine}}<br>")
 	titleStruct := TitleStruct{
 		storyChoice.Title,
 	}
 
-	//test titleStruct//
 	buf := &bytes.Buffer{}
 	buf.WriteString("<html>")
 	buf.WriteString("<head>")
 	buf.WriteString("</head>")
-	err = getTitleString(buf, titleStruct, titleTemplate)
+	buf.WriteString("<body>")
+	err = writeTitleString(buf, titleStruct, titleTemplate)
 	if err != nil {
 		return "", err
 	}
-	buf.WriteString("<body>")
+	err = writeStoryLines(buf, storyChoice, s)
+	if err != nil {
+		return "", err
+	}
+
 	buf.WriteString("</body>")
 	buf.WriteString("</html>")
 	return buf.String(), nil
 }
 
-func getTitleString(buf *bytes.Buffer, titleStruct TitleStruct, titleTemplate *template.Template) (err error) {
+func writeStoryLines(buf *bytes.Buffer, storyChoice jsonDecoder.StoryChoice, storyLineTemplate *template.Template) (err error) {
+	for _, storyLine := range storyChoice.Story {
+		storyLineStruct := StoryLineStruct{storyLine}
+		err = writeStoryLineString(buf, storyLineStruct, storyLineTemplate)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
+func writeStoryLineString(buf *bytes.Buffer, storyLineStruct StoryLineStruct, storyLineTemplate *template.Template) (err error) {
+	err = storyLineTemplate.Execute(buf, storyLineStruct)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func writeTitleString(buf *bytes.Buffer, titleStruct TitleStruct, titleTemplate *template.Template) (err error) {
 	t, err := titleTemplate.Parse("<h1>{{.Title}}</h1>")
 	if err != nil {
 		return err
